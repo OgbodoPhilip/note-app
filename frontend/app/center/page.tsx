@@ -2,20 +2,22 @@
 
 import Navbar from "@/components/Navbar";
 import RateLimitedUI from "@/components/RateLimitedUI";
+import { formatDate } from "@/lib/utils";
 import axios, { AxiosResponse } from "axios";
+import { PenSquareIcon, Trash2Icon } from "lucide-react";
 import Link from "next/link";
-import { JSX, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 
 type Note = {
   _id: string;
   title: string;
   content: string;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
-export default function Center(): JSX.Element {
+export default function Center() {
   const [isRateLimited, setIsRateLimited] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [notes, setNotes] = useState<Note[]>([]);
@@ -27,17 +29,26 @@ export default function Center(): JSX.Element {
           "http://localhost:5000/api/notes",
         );
 
-        console.log(res.data);
         setNotes(res.data);
         setIsRateLimited(false);
       } catch (error: unknown) {
-        
+        console.error(error);
 
-        if (error.response?.status === 429) {
-          setIsRateLimited(true);
-          toast.error("You have made too many requests. Please try again later.");
+        if (axios.isAxiosError(error)) {
+          if (error.response?.status === 429) {
+            setIsRateLimited(true);
+
+            toast.error(
+              "You have made too many requests. Please try again later.",
+            );
+          } else {
+            toast.error(
+              error.response?.data?.message ??
+                "An error occurred while fetching notes.",
+            );
+          }
         } else {
-          toast.error("An error occurred while fetching notes.");
+          toast.error("An unexpected error occurred.");
         }
       } finally {
         setLoading(false);
@@ -56,8 +67,8 @@ export default function Center(): JSX.Element {
       <Navbar />
 
       {loading && (
-        <div className="flex justify-center mt-10">
-          <p className="text-lg font-medium">Loading...</p>
+        <div className="flex justify-center items-center mt-10">
+          <p className="text-lg font-bold">Loading Notes...</p>
         </div>
       )}
 
@@ -70,10 +81,7 @@ export default function Center(): JSX.Element {
             note!
           </p>
 
-          <Link
-            href="/create"
-            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary-focus transition"
-          >
+          <Link href="/create" className="btn btn-primary">
             Create Note
           </Link>
         </div>
@@ -81,18 +89,40 @@ export default function Center(): JSX.Element {
 
       {!loading && notes.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
-          {notes.map((note: Note) => (
-            <div key={note._id} className="bg-base-200 p-4 rounded shadow">
-              <h3 className="text-lg font-bold mb-2">{note.title}</h3>
+          {notes.map((note) => (
+            <div
+              key={note._id}
+              className="card bg-base-100 shadow-md hover:shadow-lg transition-shadow"
+            >
+              <div className="card-body">
+                <h3 className="card-title">{note.title}</h3>
 
-              <p className="text-gray-700 mb-4">{note.content}</p>
+                <p className="text-base-content/70 line-clamp-4">
+                  {note.content}
+                </p>
 
-              <Link
-                href={`/notedetails/${note._id}`}
-                className="text-sm text-primary hover:underline"
-              >
-                Edit Note
-              </Link>
+                <div className="card-actions justify-between items-center mt-4">
+                  <span className="text-sm text-base-content/60">
+                    Created: {formatDate(new Date(note.createdAt))}
+                  </span>
+
+                  <div className="flex items-center gap-2">
+                    <Link
+                      href={`/edit/${note._id}`}
+                      className="btn btn-sm btn-ghost"
+                    >
+                      <PenSquareIcon className="size-4" />
+                    </Link>
+
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-ghost text-error"
+                    >
+                      <Trash2Icon className="size-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           ))}
         </div>
