@@ -1,9 +1,10 @@
-import React from 'react'
 
-type Props = {}
+import Center from "./center/page";
 
-export default function Home({}: Props) {
+export default function Home() {
   return (
-    <div>Home</div>
-  )
+    <div className="min-h-screen p-4">
+      <Center /> 
+    </div>
+  );
 }
