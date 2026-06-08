@@ -24,7 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(rateLimiter);
 app.get('/',(req,res)=>{
-    res.status(200).send("THE NOTE APPLICATION")
+    res.status(200).send("THE CRUD NOTE APPLICATION")
 })
 
 
