@@ -109,7 +109,7 @@ export default function Create() {
                     className="btn btn-primary"
                     disabled={loading}
                   >
-                    {loading ? "Saving..." : "Save Post"}
+                    {loading ? "Saving..." : "Save Note"}
                   </button>
                 </div>
               </form>
