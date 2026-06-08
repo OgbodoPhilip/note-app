@@ -163,7 +163,7 @@ export default function Center() {
             <h3 className="font-bold text-lg">Delete Note</h3>
             <p className="py-4">
               Are you sure you want to delete this note? This action cannot be
-              undone.
+              undone once deleted.
             </p>
             <div className="modal-action">
               <button className="btn" onClick={() => setConfirmId(null)}>
